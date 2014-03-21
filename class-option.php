@@ -204,7 +204,7 @@ class TitanFrameworkOption {
 		$desc = $this->getDesc();
 		if ( ! empty( $desc ) && $showDesc ):
 			?>
-			<p class='description'><?php echo $desc ?></p>
+			<p class="description"><?php echo $desc ?></p>
 			<?php
 		endif;
 

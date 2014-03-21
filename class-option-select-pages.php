@@ -6,6 +6,7 @@ class TitanFrameworkOptionSelectPages extends TitanFrameworkOption {
 
 	public $defaultSecondarySettings = array(
 		'default' => '0', // show this when blank
+		'extra_query_args' => array()
 	);
 
 	private static $allPages;
@@ -17,8 +18,15 @@ class TitanFrameworkOptionSelectPages extends TitanFrameworkOption {
 		$this->echoOptionHeader();
 
 		// Remember the pages so as not to perform any more lookups
-		if ( ! isset( self::$allPages ) ) {
-			self::$allPages = get_pages();
+		// But only keep the query if there are no extra query args passed in
+		if( !empty( $this->extra_query_args ) ){
+			if ( ! isset( self::$allPages ) ) {
+				$pages = self::$allPages = get_pages();
+			} else {
+				$pages = self::$allPages;
+			}
+		} else {
+			$pages = get_pages( $this->extra_query_args );
 		}
 
 		echo "<select name='" . esc_attr( $this->getID() ) . "'>";
@@ -31,11 +39,11 @@ class TitanFrameworkOptionSelectPages extends TitanFrameworkOption {
 		);
 
 		// Print all the other pages
-		foreach ( self::$allPages as $page ) {
+		foreach ( $pages as $page ) {
 			printf( "<option value='%s' %s>%s</option>",
 				esc_attr( $page->ID ),
 				selected( $this->getValue(), $page->ID, false ),
-				$page->post_title
+				get_the_title( $page->ID )
 			);
 		}
 		echo "</select>";

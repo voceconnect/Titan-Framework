@@ -11,6 +11,7 @@ class TitanFrameworkOptionSelectPosts extends TitanFrameworkOption {
 		'post_status' => 'any',
 		'orderby' => 'post_date',
 		'order' => 'DESC',
+		'extra_query_args' => array()
 	);
 
 	/*
@@ -19,15 +20,19 @@ class TitanFrameworkOptionSelectPosts extends TitanFrameworkOption {
 	public function display() {
 		$this->echoOptionHeader();
 
-		$args = array(
+		$query_args = array(
 			'post_type' => $this->settings['post_type'],
 			'posts_per_page' => $this->settings['num'],
 			'post_status' => $this->settings['post_status'],
 			'orderby' => $this->settings['orderby'],
-			'order' => $this->settings['order'],
+			'order' => $this->settings['order']
 		);
 
-		$posts = get_posts( $args );
+		if( !empty( $this->settings['extra_query_args'] ) ){
+			$query_args = array_merge( $query_args, $this->settings['extra_query_args'] );
+		}
+
+		$posts_query = new WP_Query( $query_args );
 
 		echo "<select name='" . esc_attr( $this->getID() ) . "'>";
 
@@ -39,13 +44,15 @@ class TitanFrameworkOptionSelectPosts extends TitanFrameworkOption {
 		);
 
 		// Print all the other pages
-		foreach ( $posts as $post ) {
-			printf( "<option value='%s' %s>%s</option>",
-				esc_attr( $post->ID ),
-				selected( $this->getValue(), $post->ID, false ),
-				$post->post_title
-			);
-		}
+		if( $posts_query->have_posts() ):
+			while ( $posts_query->have_posts() ): $posts_query->the_post();
+				printf( "<option value='%s' %s>%s</option>",
+					esc_attr( get_the_ID() ),
+					selected( $this->getValue(), get_the_ID(), false ),
+					get_the_title()
+				);
+			endwhile; wp_reset_postdata();
+		endif;
 		echo "</select>";
 
 		$this->echoOptionFooter();
@@ -65,7 +72,8 @@ class TitanFrameworkOptionSelectPosts extends TitanFrameworkOption {
 			'post_status' => $this->settings['post_status'],
 			'orderby' => $this->settings['orderby'],
 			'order' => $this->settings['order'],
-			'priority' => $priority,
+			'extra_query_args' => $this->settings['extra_query_args'],
+			'priority' => $priority
 		) ) );
 	}
 }
@@ -82,17 +90,19 @@ function registerTitanFrameworkOptionSelectPostsControl() {
 		public $post_status;
 		public $orderby;
 		public $order;
+		public $extra_query_args;
 
 		public function render_content() {
-			$args = array(
+			$query_args = array(
 				'post_type' => $this->post_type,
 				'posts_per_page' => $this->num,
 				'post_status' => $this->post_status,
 				'orderby' => $this->orderby,
 				'order' => $this->order,
+				'extra_query_args' => $this->extra_query_args
 			);
 
-			$posts = get_posts( $args );
+			$posts_query = new WP_Query( $query_args );
 
 			?>
 			<label>
@@ -107,18 +117,22 @@ function registerTitanFrameworkOptionSelectPostsControl() {
 					);
 
 					// Print all the other pages
-					foreach ( $posts as $post ) {
-						printf( "<option value='%s' %s>%s</option>",
-							esc_attr( $post->ID ),
-							selected( $this->value(), $post->ID, false ),
-							$post->post_title
-						);
-					}
+					if( $posts_query->have_posts() ):
+						while ( $posts_query->have_posts() ): $posts_query->the_post();
+							printf( "<option value='%s' %s>%s</option>",
+								esc_attr( get_the_ID() ),
+								selected( $this->value, get_the_ID(), false ),
+								get_the_title()
+							);
+						endwhile; wp_reset_postdata();
+					endif;
 					?>
 				</select>
 			</label>
 			<?php
-			echo "<p class='description'>{$this->description}</p>";
+			if( !empty( $this->description ) ){
+				echo '<p class="description">' . $this->description . '</p>';
+			}
 		}
 	}
 }
