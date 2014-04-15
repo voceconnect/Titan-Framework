@@ -11,57 +11,49 @@ class TitanFrameworkOptionSelectPages extends TitanFrameworkOption {
 
 	private static $allPages;
 
-	/*
-	 * Display for options and meta
-	 */
-	public function display() {
-		$this->echoOptionHeader();
+	public function __construct( $settings, $owner ){
+		parent::__construct( $settings, $owner );
 
+		$this->setOptions();
+	}
+
+	/*
+	 * Set setting options
+	 */
+	private function setOptions(){
 		// Remember the pages so as not to perform any more lookups
 		// But only keep the query if there are no extra query args passed in
-		if( !empty( $this->extra_query_args ) ){
+		if( !empty( $this->settings['extra_query_args'] ) ){
+			$pages = get_pages( $this->settings['extra_query_args'] );
+		} else {
 			if ( ! isset( self::$allPages ) ) {
 				$pages = self::$allPages = get_pages();
 			} else {
 				$pages = self::$allPages;
 			}
-		} else {
-			$pages = get_pages( $this->extra_query_args );
 		}
 
-		echo "<select name='" . esc_attr( $this->getID() ) . "'>";
-
-		// The default value (nothing is selected)
-		printf( "<option value='%s' %s>%s</option>",
-			'0',
-			selected( $this->getValue(), '0', false ),
-			"— " . __( "Select", TF_I18NDOMAIN ) . " —"
-		);
-
-		// Print all the other pages
-		foreach ( $pages as $page ) {
-			printf( "<option value='%s' %s>%s</option>",
-				esc_attr( $page->ID ),
-				selected( $this->getValue(), $page->ID, false ),
-				get_the_title( $page->ID )
-			);
+		if( !empty( $pages ) ){
+			$this->settings['options'] = array();
+			foreach ( $pages as $page ) {
+				$this->settings['options'][$page->ID] = the_title_attribute( array( 'post' => $page->ID, 'echo' => false ) );
+			}
 		}
-		echo "</select>";
-
-		$this->echoOptionFooter();
 	}
 
 	/*
 	 * Display for theme customizer
 	 */
 	public function registerCustomizerControl( $wp_customize, $section, $priority = 1 ) {
-		$wp_customize->add_control( new TitanFrameworkCustomizeControl( $wp_customize, $this->getID(), array(
-			'label' => $this->settings['name'],
-			'section' => $section->settings['id'],
-			'settings' => $this->getID(),
-			'type' => 'dropdown-pages',
-			'description' => $this->settings['desc'],
-			'priority' => $priority,
-		) ) );
+		if( !empty( $this->settings['options'] ) ){
+			$wp_customize->add_control( new TitanFrameworkOptionSelectPostsControl( $wp_customize, $this->getID(), array(
+				'label' => $this->settings['name'],
+				'section' => $section->settings['id'],
+				'settings' => $this->getID(),
+				'description' => $this->settings['desc'],
+				'options' => $this->settings['options'],
+				'priority' => $priority,
+			) ) );
+		}
 	}
 }
