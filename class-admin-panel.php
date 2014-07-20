@@ -187,14 +187,19 @@ class TitanFrameworkAdminPanel {
 		 */
 
 		// urlencode to allow special characters in the url
+		$url = wp_get_referer();
 		$activeTab = $this->getActiveTab();
-		$args = '?page=' . urlencode( $this->settings['id'] );
-		$args .= empty( $activeTab ) ? '' : '&tab=' . urlencode( $activeTab->settings['id'] );
-		$args .= empty( $message ) ? '' : '&message=' . $message;
+		$url = add_query_arg( 'page', urlencode( $this->settings['id'] ), $url );
+		if ( ! empty( $activeTab ) ) {
+			$url = add_query_arg( 'tab', urlencode( $activeTab->settings['id'] ), $url );
+		}
+		if ( ! empty( $message ) ) {
+			$url = add_query_arg( 'message', $message, $url );
+		}
 
 		do_action( 'tf_admin_options_saved_' . $this->getOptionNamespace() );
 
-		wp_redirect( admin_url( 'admin.php' . $args ) );
+		wp_redirect( $url );
 	}
 
 	private function verifySecurity() {
@@ -237,6 +242,9 @@ class TitanFrameworkAdminPanel {
 				return $this->activeTab;
 			}
 		}
+		
+		$this->activeTab = $this->tabs[0];
+		return $this->activeTab;
 	}
 
 	public function createAdminPage() {
@@ -244,7 +252,9 @@ class TitanFrameworkAdminPanel {
 		do_action( 'tf_admin_page_before_' . $this->getOptionNamespace() );
 
 		?>
-		<div class='wrap titan-framework-panel-wrap'>
+		<div class="wrap">
+		<h2><?php echo $this->settings['title'] ?></h2>
+		<div class='titan-framework-panel-wrap'>
 		<?php
 
 		do_action( 'tf_admin_page_start' );
@@ -273,16 +283,6 @@ class TitanFrameworkAdminPanel {
 		?>
 		<div class='options-container'>
 		<?php
-
-		if ( count( $this->tabs ) ):
-			echo "<h2>" . $this->getActiveTab()->settings['title'] . "</h2>";
-		endif;
-
-		if ( ! count( $this->tabs ) ):
-			?>
-			<h2><?php echo $this->settings['title'] ?></h2>
-			<?php
-		endif;
 
 		// Display notification if we did something
 		if ( ! empty( $_GET['message'] ) ) {
@@ -354,6 +354,7 @@ class TitanFrameworkAdminPanel {
 
 		?>
 		<div class='options-container'>
+		</div>
 		</div>
 		</div>
 		</div>
