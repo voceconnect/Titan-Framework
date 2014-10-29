@@ -148,7 +148,7 @@ class TitanFramework {
 		}
 
 		// Only enqueue scripts if we're on a Titan options page
-		if ( in_array( $hook, $panel_ids ) || count($this->metaBoxes) ) {
+		if ( in_array( $hook, $panel_ids ) || ( count($this->metaBoxes) && in_array( $hook, array( 'post.php', 'post-new.php' ) ) ) ) {
 			wp_enqueue_media();
 			wp_enqueue_script( 'tf-serialize', TitanFramework::getURL( 'js/serialize.js', __FILE__ ) );
 			wp_enqueue_script( 'tf-styling', TitanFramework::getURL( 'js/admin-styling.js', __FILE__ ) );
