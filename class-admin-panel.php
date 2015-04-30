@@ -33,6 +33,11 @@ class TitanFrameworkAdminPanel {
 			return;
 		}
 
+		// If we are just initializing, do not create our admin panels yet. During this phase all we want is to get all the options to create
+		if ( TitanFramework::$initializing ) {
+			return;
+		}
+
 		$this->settings = array_merge( $this->defaultSettings, $settings );
 		// $this->options = $options;
 
@@ -101,11 +106,25 @@ class TitanFrameworkAdminPanel {
 		}
 
 		add_action( 'load-' . $this->panelID, array( $this, 'saveOptions' ) );
+		
+		add_action( 'load-' . $this->panelID, array( $this, 'addTitanCredit' ) );
 	}
+	
+	
+	public function addTitanCredit() {
+		add_filter( 'admin_footer_text', array( $this, 'addTitanCreditText' ) );
+	}
+	
+	
+	public function addTitanCreditText() {
+		echo __( "<em>Options Page Created with <a href='http://titanframework.net?utm_source=admin&utm_medium=admin footer'>Titan Framework</a></em>", TF_I18NDOMAIN );
+	}
+	
 
 	public function getOptionNamespace() {
 		return $this->owner->optionNamespace;
 	}
+	
 
 	public function saveOptions() {
 		if ( ! $this->verifySecurity() ) {
@@ -150,6 +169,10 @@ class TitanFrameworkAdminPanel {
 
 				$this->owner->setOption( $option->settings['id'], $value );
 			}
+		
+			// Hook 'tf_pre_save_options_{namespace}' - action pre-saving
+			do_action( 'tf_pre_save_options_' . $this->getOptionNamespace(), $this );
+				
 			$this->owner->saveOptions();
 
 			$message = 'saved';
@@ -178,6 +201,10 @@ class TitanFrameworkAdminPanel {
 
 				$this->owner->setOption( $option->settings['id'], $option->settings['default'] );
 			}
+		
+			// Hook 'tf_pre_reset_options_{namespace}' - action pre-saving
+			do_action( 'tf_pre_reset_options_' . $this->getOptionNamespace(), $this );
+			
 			$this->owner->saveOptions();
 
 			$message = 'reset';
@@ -200,7 +227,7 @@ class TitanFrameworkAdminPanel {
 
 		do_action( 'tf_admin_options_saved_' . $this->getOptionNamespace() );
 
-		wp_redirect( $url );
+		wp_redirect( esc_url_raw( $url ) );
 	}
 
 	private function verifySecurity() {

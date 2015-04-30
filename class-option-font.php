@@ -175,8 +175,12 @@ class TitanFrameworkOptionFont extends TitanFrameworkOption {
 				implode( ',', $variants ),
 				implode( ',', $subsets )
 			);
+			
+			$fontUrl = apply_filters( 'tf_enqueue_google_webfont_' . $this->getOptionNamespace(), $fontUrl, $fontName );
 
-			wp_enqueue_style( 'tf-google-webfont-' . strtolower( str_replace( ' ', '-', $fontName ) ), $fontUrl );
+			if ( $fontUrl !== false ) {
+				wp_enqueue_style( 'tf-google-webfont-' . strtolower( str_replace( ' ', '-', $fontName ) ), $fontUrl );
+			}
 		}
 
 		// Don't repeat
@@ -384,17 +388,35 @@ class TitanFrameworkOptionFont extends TitanFrameworkOption {
 					tf_select_font_update_preview( $this, false )
 				}, 1 );
 			});
-
-			$('body.wp-customizer').on('click', function(e) {
-				$('.tf-font .wp-color-result').each(function() {
-					if ( $(this).hasClass('wp-picker-open') ) {
-						$(this).parents('label:eq(0)').addClass('tf-picker-open');
+			
+			
+			/**
+			 * Theme Customizer scripts
+			 */
+			
+			// Check for font selector clicks, we need to adjust styles to make it look nice
+			$('body.wp-customizer .tf-font').on('mouseup', function(e) {
+				if ( $(e.target).is('.wp-color-result') ) {
+					if ( ! $(e.target).is('.wp-picker-open') ) {
+						$(e.target).parents('label:eq(0)').addClass('tf-picker-open');
 					} else {
-						if ( $(this).parents('label:eq(0)').hasClass('tf-picker-open') ) {
-							$(this).parents('label:eq(0)').removeClass('tf-picker-open');
-						}
+						$(e.target).parents('label:eq(0)').removeClass('tf-picker-open');
 					}
-				});
+				}
+			});
+			
+			// Check for close clicks (clicking outside while the picker is open)
+			$('body.wp-customizer').on('mouseup', '*', function(e) {
+				var $target = $(e.target);
+				if ( $target.is('.wp-color-result, .wp-color-picker, .wp-picker-default') ) { 
+					return;
+				}
+				if ( $target.parents('.wp-picker-holder').length > 0 ) {
+					return;
+				}
+				if ( $('.tf-picker-open').length > 0 ) {
+					$('.tf-picker-open').removeClass('tf-picker-open');
+				}
 			});
 		});
 
@@ -963,7 +985,7 @@ function registerTitanFrameworkOptionFontControl() {
 
 
 			$visibilityAttrs = '';
-			if ( ! $this->params['show_font_size'] ) {
+			if ( ! $this->params['show_color'] ) {
 				$visibilityAttrs = "data-visible='false' style='display: none'";
 			}
 			?>
@@ -971,7 +993,15 @@ function registerTitanFrameworkOptionFontControl() {
 				Color
 				<input class='tf-font-sel-color' type="text" value="<?php echo esc_attr( $value['color'] ) ?>"  data-default-color="<?php echo esc_attr( $value['color'] ) ?>"/>
 			</label>
-			<label>
+			<?php
+
+
+			$visibilityAttrs = '';
+			if ( ! $this->params['show_font_size'] ) {
+				$visibilityAttrs = "data-visible='false' style='display: none'";
+			}
+			?>
+			<label <?php echo $visibilityAttrs ?>>
 				Font Size
 				<select class='tf-font-sel-size'>
 					<?php

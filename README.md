@@ -7,10 +7,9 @@ Titan Framework
 
 Titan Framework allows theme and plugin developers to create a admin pages, options, meta boxes, and theme customizer options with just a few simple lines of code.
 
-#### Updates
-* Replaced fontawesome with WordPress-bundled dashicons. This should make the framework more of lightweight.
-* New features in the works! Among them, form dependency, opt-in tracking, and the desc parameter for panels, tabs and metaboxes! Stay tuned for more details on when they'll be available!
-* Version 1.5.2 has been pushed out to the WP.org plugin repository!
+[Get it in the WordPress plugin repo](https://wordpress.org/plugins/titan-framework/)
+
+[Generate your own Underscores + Titan Framework based WordPress theme](http://www.titanframework.net)
 
 #### Features
 * Makes development unbelievably easy
@@ -21,12 +20,48 @@ Titan Framework allows theme and plugin developers to create a admin pages, opti
 * Supports child themes
 * Automatic CSS generation with SCSS support
 
-#### Extensions
-* [Shortcode Extension - Easy creation of shortcodes with TinyMCE and Visual Composer auto-integration](http://codecanyon.net/item/titan-framework-shortcode-extension/7009811?ref=bfintal)
+## Installing
 
-## Try it Out First
+1. You can install the latest stable release from the [wordpress.org plugin page](https://wordpress.org/plugins/titan-framework/) straight from your WordPress plugin page;
 
-Want to see what Titan Framework can do? [Check out our live demo, no need to install anything!](http://demo.titanframework.net/wp-admin/)
+2. Or you can download the [master.zip file](https://github.com/gambitph/Titan-Framework/archive/master.zip) then install it as a WordPress plugin;
+
+3. Alternatively, you can also install it via Composer into your wp-content/plugin folder:
+
+```
+curl -sS https://getcomposer.org/installer | php
+php composer.phar create-project gambitph/titan-framework titan-framework
+```
+
+## Recent Changelog
+
+#### Version 1.7.4
+* Faster SCSS parsing
+* Faster loading time
+* Unit parameter for number options now supported in the Theme Customizer
+* Better font color option handling in Theme Customizer
+* Now prevents SCSS errors from showing up
+* Fixed name label issues with the enable option
+* Better plugin checking method
+* Plugin checker now integrates with TGM Plugin Activation
+* Updated Ace
+
+#### Version 1.7.3
+* Fixed bug introduced in 1.7.2 where admin options sometimes were not being saved
+
+#### Version 1.7.2
+* EDD option can now check for updates all by itself (thank you julien731)
+* `get_post_types` function now callable from `tf_create_options`
+* Now passes theme-check (ignored `add_menu_page` error)
+
+#### Version 1.7.1
+* Bug fixes for the Easy Digital Download License option
+* Enhanced date option parameters
+* New parameters for Theme Customizer for creating panels
+
+## Creating a WordPress Theme?
+
+[Generate your own Underscores + Titan Framework based WordPress theme](http://www.titanframework.net)
 
 ## Getting Started With Titan Framework
 
@@ -50,6 +85,28 @@ Titan is super new, so far the framework has been getting good feedback from the
 ## Are You Using Titan Framework in Your Project?
 
 Let us know so we can showcase it in the site! Send me an email at bf.intal@gambit.ph, send the name, a screenshot, a link and a short description of your project.
+
+
+## Contributing, Pull Requests Are Very Welcome
+
+Have an idea for a cool option, or do you have a bug fix you want to implement? Please don't hessitate to place a *PR* (Pull Request).
+
+PRs on these are welcome:
+* Bug fixes
+* Cool new options
+* Cool new hooks
+* WordPress standardization
+* Code optimizations
+* Anything under the sun as long as it's helpful :)
+
+
+## Packaging
+
+Code cleanup can be performed by Composer with:
+
+```
+php composer.phar archive --format=zip
+```
 
 ## Translations
 

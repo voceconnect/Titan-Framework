@@ -96,9 +96,9 @@ class TitanFrameworkCSS {
 		if ( $this->frameworkInstance->settings['css'] == 'generate' ) {
 
 			$css = get_option( $this->getCSSSlug() );
-			$generatedCss = $this->generateCSS();
+			$generatedCss = $this->getCSSFilePath();
 
-			if ( ! empty( $generatedCss ) && empty( $css ) ) {
+			if ( file_exists( $generatedCss ) && empty( $css ) ) {
 				wp_enqueue_style( 'tf-compiled-options-' . $this->frameworkInstance->optionNamespace, $this->getCSSFileURL(), __FILE__ );
 			}
 
@@ -203,14 +203,14 @@ class TitanFrameworkCSS {
 	 */
 	public function generateCSS() {
 		$cssString = '';
-
+		
 		// These are the option types which are not allowed:
 		$noCSSOptionTypes = array(
 			'text',
 			'textarea',
 			'editor',
 		);
-
+		
 		// Compile as SCSS & minify
 		require_once( trailingslashit( dirname( __FILE__ ) ) . "inc/scssphp/scss.inc.php" );
 		$scss = new scssc();
@@ -221,12 +221,12 @@ class TitanFrameworkCSS {
 			if ( in_array( $option->settings['type'], $noCSSOptionTypes ) ) {
 				continue;
 			}
-
+			
 			// Decide whether or not we should continue to generate CSS for this option
 			if ( ! apply_filters( 'tf_continue_generate_css_' . $option->settings['type'] . '_' . $option->getOptionNamespace(), true, $option ) ) {
 				continue;
 			}
-
+			
 			// Custom generated CSS
 			$generatedCSS = apply_filters( 'tf_generate_css_' . $option->settings['type'] . '_' . $option->getOptionNamespace(), '', $option );
 			if ( $generatedCSS ) {
@@ -251,6 +251,7 @@ class TitanFrameworkCSS {
 				$optionValue
 			);
 
+			
 			try {
 				$testerForValidCSS = $scss->compile( $generatedCSS );
 				$cssString .= $generatedCSS;
@@ -271,7 +272,7 @@ class TitanFrameworkCSS {
 				}
 			}
 		}
-
+		
 		// Add additional CSS added via TitanFramework::createCSS()
 		foreach ( $this->additionalCSS as $css ) {
 			$cssString .= $css . "\n";
@@ -280,7 +281,10 @@ class TitanFrameworkCSS {
 		// Compile as SCSS & minify
 		if ( ! empty( $cssString ) ) {
 			$scss->setFormatter( self::SCSS_COMPRESSION );
-			$cssString = $scss->compile( $cssString );
+			try {
+				$cssString = $scss->compile( $cssString );
+			} catch ( Exception $e ) {
+			}
 		}
 
 		return $cssString;
