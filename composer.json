@@ -57,7 +57,8 @@
 	],
 	"require": {
 		"trentrichardson/jquery-timepicker-addon": "dev-master",
-		"ajaxorg/ace-builds": "dev-master"
+		"ajaxorg/ace-builds": "dev-master",
+		"composer/installers": "~1.0"
 	},
 	"scripts": {
 		"post-archive-cmd": [
