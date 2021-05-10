@@ -12,7 +12,7 @@
 			"role" : "Developer"
 		}
 	],
-	"type": "library",
+	"type": "wordpress-muplugin",
 	"autoload": {
 		"files": ["titan-framework.php"]
 	},
