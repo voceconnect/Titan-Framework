@@ -13,9 +13,6 @@
 		}
 	],
 	"type": "wordpress-muplugin",
-	"autoload": {
-		"files": ["titan-framework.php"]
-	},
 	"archive": {
 		"exclude": [
 			"/bin", 
